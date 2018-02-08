@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 08-feb-2018 21:48:55 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="model.hibernate.Series" table="series" catalog="videoclub" optimistic-lock="version">
+        <id name="idPelicula" type="int">
+            <column name="idPelicula" />
+            <generator class="foreign">
+                <param name="property">peliculas</param>
+            </generator>
+        </id>
+        <one-to-one name="peliculas" class="model.hibernate.Peliculas" constrained="true"></one-to-one>
+        <property name="numCaps" type="int">
+            <column name="numCaps" not-null="true" />
+        </property>
+        <property name="estado" type="int">
+            <column name="estado" not-null="true" />
+        </property>
+        <property name="fechaFin" type="date">
+            <column name="fechaFin" length="10" />
+        </property>
+    </class>
+</hibernate-mapping>

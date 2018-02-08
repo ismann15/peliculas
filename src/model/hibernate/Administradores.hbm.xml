@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 08-feb-2018 21:48:55 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="model.hibernate.Administradores" table="administradores" catalog="videoclub" optimistic-lock="version">
+        <id name="nombreUsuario" type="string">
+            <column name="nombreUsuario" length="25" />
+            <generator class="assigned" />
+        </id>
+        <property name="pass" type="string">
+            <column name="pass" length="25" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

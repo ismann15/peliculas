@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 08-feb-2018 21:48:55 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+    <class name="model.hibernate.Peliculas" table="peliculas" catalog="videoclub" optimistic-lock="version">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="directores" class="model.hibernate.Directores" fetch="select">
+            <column name="director" not-null="true" />
+        </many-to-one>
+        <property name="tituloPelicula" type="string">
+            <column name="tituloPelicula" length="25" not-null="true" />
+        </property>
+        <property name="descripcion" type="string">
+            <column name="descripcion" length="65535" />
+        </property>
+        <property name="fechaPublicacion" type="date">
+            <column name="fechaPublicacion" length="10" not-null="true" />
+        </property>
+        <property name="duracion" type="int">
+            <column name="duracion" not-null="true" />
+        </property>
+        <property name="paisPublicacion" type="string">
+            <column name="paisPublicacion" length="25" not-null="true" />
+        </property>
+        <property name="tiempoAlquiler" type="int">
+            <column name="tiempoAlquiler" not-null="true" />
+        </property>
+        <property name="notaUsuarios" type="float">
+            <column name="notaUsuarios" precision="3" scale="1" not-null="true" />
+        </property>
+        <property name="notaPrensa" type="float">
+            <column name="notaPrensa" precision="3" scale="1" not-null="true" />
+        </property>
+        <property name="esSerie" type="boolean">
+            <column name="esSerie" not-null="true">
+                <comment>si es 1 es serie, si es 0 es pelicula</comment>
+            </column>
+        </property>
+        <one-to-one name="series" class="model.hibernate.Series"></one-to-one>
+        <set name="generoses" table="peliculasgeneros" inverse="false" lazy="true" fetch="select">
+            <key>
+                <column name="idPelicula" not-null="true" />
+            </key>
+            <many-to-many entity-name="model.hibernate.Generos">
+                <column name="idGenero" not-null="true" />
+            </many-to-many>
+        </set>
+    </class>
+</hibernate-mapping>
