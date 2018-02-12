@@ -1,5 +1,9 @@
 package control;
 
+import control.interfacemplementations.DBManagerHibernate;
+import control.interfacemplementations.DBManagerMongoDB;
+import control.interfacemplementations.DBManagerMySQL;
+import control.interfacee.Logica;
 import java.util.ArrayList;
 
 import model.Administrador;
@@ -18,7 +22,7 @@ public class Manager {
                 break;
             case 2: dbman= new DBManagerMongoDB();
                 break;
-            case 3:
+            case 3: dbman= new DBManagerHibernate();
                 break;
             case 4:
                 break;

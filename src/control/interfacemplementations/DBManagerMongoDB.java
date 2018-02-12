@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package control;
+package control.interfacemplementations;
 
+import control.interfacee.Logica;
 import model.Administrador;
 import model.Director;
 import model.Genero;

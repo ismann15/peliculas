@@ -1,5 +1,6 @@
-package control;
+package control.interfacemplementations;
 
+import control.interfacee.Logica;
 import java.util.ArrayList;
 
 /*import org.bson.Document;

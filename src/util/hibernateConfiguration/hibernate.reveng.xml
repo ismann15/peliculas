@@ -41,10 +41,10 @@ Contributor(s):
 -->
 <hibernate-reverse-engineering>
   <schema-selection match-catalog="videoclub"/>
-  <table-filter match-name="directores"/>
-  <table-filter match-name="generos"/>
-  <table-filter match-name="peliculasgeneros"/>
-  <table-filter match-name="administradores"/>
-  <table-filter match-name="peliculas"/>
   <table-filter match-name="series"/>
+  <table-filter match-name="directores"/>
+  <table-filter match-name="administradores"/>
+  <table-filter match-name="peliculasgeneros"/>
+  <table-filter match-name="generos"/>
+  <table-filter match-name="peliculas"/>
 </hibernate-reverse-engineering>
