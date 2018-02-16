@@ -390,7 +390,7 @@ public class DBManagerMySQL implements Logica{
             this.openConnection();
             String insert = "insert into peliculas values ('" + p.getId_P() + "'"
                     + ",'" + p.getTituloP() + "','" + fecha + "','" + p.getDuracionP() + "'"
-                    + ",'" + p.getPaisP() + "','" + p.getDuracionAl() + "','" + p.getNotaUsu() + "'"
+                    + ",'" + p.getPaisP()  + "','" + p.getNotaUsu() + "'"
                     + ",'" + p.getNotaPren() + "','" + esSerie + "')";
             //Se insertan los datos de una pelicula
             stmt.executeUpdate(insert);
@@ -476,7 +476,7 @@ public class DBManagerMySQL implements Logica{
                 p.setFechaP(fechaPubli);
                 p.setDuracionP(rs.getInt(5));
                 p.setPaisP(rs.getString(6));
-                p.setDuracionAl(rs.getInt(7));
+                //p.setDuracionAl(rs.getInt(7));
                 p.setNotaUsu(rs.getFloat(8));
                 p.setNotaPren(rs.getFloat(9));
                 pelis.add(p);
@@ -549,13 +549,15 @@ public class DBManagerMySQL implements Logica{
                 s.setFechaP(fechaPubli);
                 s.setDuracionP(rs.getInt(5));
                 s.setPaisP(rs.getString(6));
-                s.setDuracionAl(rs.getInt(7));
+                //s.setDuracionAl(rs.getInt(7));
                 s.setNotaUsu(rs.getFloat(8));
                 s.setNotaPren(rs.getFloat(9));
                 s.setNumCap(rs.getInt(10));
                 s.setEstado(rs.getString(11));
                 fechaFin = convertSlqToUtil(rs.getDate(12));
                 s.setFechaFin(fechaFin);
+                s.setGeneros(this.getGenerosPelicula(s.getId_P(), 1));
+                s.setDir(this.getDirectorPelicula(s.getId_P(), 1));
                 pelis.add(s);
             }
         } catch (Exception e) {
@@ -588,9 +590,11 @@ public class DBManagerMySQL implements Logica{
                 p.setFechaP(fechaPubli);
                 p.setDuracionP(rs.getInt(5));
                 p.setPaisP(rs.getString(6));
-                p.setDuracionAl(rs.getInt(7));
+                //p.setDuracionAl(rs.getInt(7));
                 p.setNotaUsu(rs.getFloat(8));
                 p.setNotaPren(rs.getFloat(9));
+                p.setGeneros(getGenerosPelicula(p.getId_P(),1));
+                p.setDir(getDirectorPelicula(p.getId_P(),1));
                 pelis.add(p);
             }
         } catch (Exception e) {
@@ -605,7 +609,7 @@ public class DBManagerMySQL implements Logica{
      * @param id_P identificador de la pelicula
      * @return director de la pelicula
      */
-    public Director getDirectorPelicula(int id) {
+    public Director getDirectorPelicula(int id, int i) {
         Director dir = null;
         ResultSet rs = null;
         try {
@@ -632,7 +636,7 @@ public class DBManagerMySQL implements Logica{
      * @param id identificador de la pelicula
      * @return generos de la pelicula
      */
-    public ArrayList<Genero> getGenerosPelicula(int id) {
+    public ArrayList<Genero> getGenerosPelicula(int id, int i) {
         Genero g;
         ArrayList<Genero> gens = new ArrayList<Genero>();
         ResultSet rs = null;
@@ -670,4 +674,11 @@ public class DBManagerMySQL implements Logica{
         
         return ok;
     }
+
+    @Override
+    public int obtenerIdSerieMax() {
+        return this.obtenerIdPeliculaMax();
+    }
+
+    
 }

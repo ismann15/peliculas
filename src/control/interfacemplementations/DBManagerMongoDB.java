@@ -406,8 +406,8 @@ public class DBManagerMongoDB implements Logica {
             p.setNotaPren((float)notaPren);
             double notaUsu=doc.getDouble("notaUsu");
             p.setNotaUsu((float)notaUsu);
-            p.setDir(getDirectorPelicula(doc.getInteger("id_P")));
-            p.setGeneros(getGenerosPelicula(doc.getInteger("id_P")));
+            p.setDir(getDirectorPelicula(doc.getInteger("id_P"),1));
+            p.setGeneros(getGenerosPelicula(doc.getInteger("id_P"),1));
             if(ok){
                 ((Serie)p).setEstado(doc.getString("estado"));
                 ((Serie)p).setNumCap(doc.getInteger("numCap"));
@@ -492,8 +492,8 @@ public class DBManagerMongoDB implements Logica {
                 //Si salta la excepcion, la fecha se modificara a la fecha actual
                 s.setFechaFin(new Date());
             }
-            s.setDir(getDirectorPelicula(doc.getInteger("id_P")));
-            s.setGeneros(getGenerosPelicula(doc.getInteger("id_P")));
+            s.setDir(getDirectorPelicula(doc.getInteger("id_P"),1));
+            s.setGeneros(getGenerosPelicula(doc.getInteger("id_P"),1));
             series.add(s);
         }
         return series;
@@ -529,8 +529,8 @@ public class DBManagerMongoDB implements Logica {
             p.setNotaPren((float)notaPren);
             double notaUsu=doc.getDouble("notaUsu");
             p.setNotaUsu((float)notaUsu);
-            p.setDir(getDirectorPelicula(doc.getInteger("id_P")));
-            p.setGeneros(getGenerosPelicula(doc.getInteger("id_P")));
+            p.setDir(getDirectorPelicula(doc.getInteger("id_P"),1));
+            p.setGeneros(getGenerosPelicula(doc.getInteger("id_P"),1));
             peliculas.add(p);
         }
         return peliculas;
@@ -541,7 +541,7 @@ public class DBManagerMongoDB implements Logica {
      * @return director de la pelicula
      */
     @Override
-    public Director getDirectorPelicula(int id) {
+    public Director getDirectorPelicula(int id, int i) {
         coleccion=db.getCollection("peliculas");
         //Recogemos en un documento la pelicula con id_P igual a id
         Document doc= coleccion.find(eq("id_P",id)).first();
@@ -556,7 +556,7 @@ public class DBManagerMongoDB implements Logica {
      * @return lista de generos de la pelicula
      */
     @Override
-    public ArrayList<Genero> getGenerosPelicula(int id) {
+    public ArrayList<Genero> getGenerosPelicula(int id, int i) {
         coleccion=db.getCollection("peliculas");
         //Se crea una lista de generos
         ArrayList<Genero> generos= new ArrayList<>();
@@ -570,6 +570,11 @@ public class DBManagerMongoDB implements Logica {
         }
         //se devuelve la lista con los generos 
         return generos;
+    }
+
+    @Override
+    public int obtenerIdSerieMax() {
+        return obtenerIdPeliculaMax();
     }
 
 }

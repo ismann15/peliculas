@@ -30,6 +30,7 @@ public interface Logica {
     public Director buscarDirector(String nombre, String apell);
     public Genero buscaGenero(String genero);
     public int obtenerIdPeliculaMax();
+    public int obtenerIdSerieMax();
     public void aniadirPelicula(Pelicula p);
     public Administrador obtenerAdmin(String uName);
     public ArrayList<Pelicula> obtenerPS(int i, String busqueda);
@@ -37,7 +38,7 @@ public interface Logica {
     public Boolean esSerie(int id);
     public ArrayList <Pelicula> getAllSeries();
     public ArrayList <Pelicula> getAllPeliculas();
-    public Director getDirectorPelicula(int id);
-    public ArrayList<Genero>getGenerosPelicula (int id);
+    public Director getDirectorPelicula(int id,int i);
+    public ArrayList<Genero>getGenerosPelicula (int id, int i);
     
 }

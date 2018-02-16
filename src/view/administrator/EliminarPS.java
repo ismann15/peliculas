@@ -398,19 +398,19 @@ public class EliminarPS extends JDialog implements ActionListener {
         }
         //Buscamos las peliculas
         p = man.obtenerPS(i, busqueda);
-        //Buscamos los generos de las peliculas
-        ArrayList<Genero> g = new ArrayList<Genero>();
-        for (int j = 0; j < p.size(); j++) {
-            g.clear();
-            g = man.getGenerosPelicula(p.get(j).getId_P());
-            p.get(j).setGeneros(g);
-        }
-        //Buscamos los directores de las peliculas
-        Director dir;
-        for (int j = 0; j < p.size(); j++) {
-            dir = man.getDirectorPelicula(p.get(j).getId_P());
-            p.get(j).setDir(dir);
-        }
+//        //Buscamos los generos de las peliculas
+//        ArrayList<Genero> g = new ArrayList<Genero>();
+//        for (int j = 0; j < p.size(); j++) {
+//            g.clear();
+//            g = man.getGenerosPelicula(p.get(j).getId_P());
+//            p.get(j).setGeneros(g);
+//        }
+//        //Buscamos los directores de las peliculas
+//        Director dir;
+//        for (int j = 0; j < p.size(); j++) {
+//            dir = man.getDirectorPelicula(p.get(j).getId_P());
+//            p.get(j).setDir(dir);
+//        }
 
     }
 

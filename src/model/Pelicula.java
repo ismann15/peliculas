@@ -15,7 +15,7 @@ public class Pelicula {
     private float notaPren;
     private ArrayList<Genero> gen;
     private Director dir;
-    private int duracionAl;
+    //private int duracionAl;
 
     public ArrayList<Genero> getGen() {
         return gen;
@@ -89,14 +89,13 @@ public class Pelicula {
         this.notaPren = notaPren;
     }
 
-    public int getDuracionAl() {
+    /*public int getDuracionAl() {
         return duracionAl;
     }
 
     public void setDuracionAl(int duracionAl) {
         this.duracionAl = duracionAl;
-    }
-
+    }*/
     public Director getDir() {
         return dir;
     }

@@ -116,7 +116,7 @@ public class BuscarPeliculas extends JDialog implements ActionListener{
             //Buscamos todas las peliculas
             pelis=man.getAllPeliculas();
         }
-        //Añadimos los generos de cada pelicula
+       /* //Añadimos los generos de cada pelicula
         ArrayList <Genero> g= new ArrayList<Genero>();
         for(int i=0;i<pelis.size();i++){
             //Buscamos los generos de la pelicula
@@ -133,7 +133,7 @@ public class BuscarPeliculas extends JDialog implements ActionListener{
             dir=man.getDirectorPelicula(pelis.get(i).getId_P());
             //Insertamos el director
             pelis.get(i).setDir(dir);
-        }
+        }*/
         //Si titulo no esta vacio, filtramos por titulo
         if(!(titulo.trim().equals(""))){
             pelis=filtrarTitulo(pelis,titulo);

@@ -371,24 +371,24 @@ public class ModificarPS extends JDialog implements ActionListener {
         } else {
             p = man.getAllPeliculas();
         }
-        //Añadimos los generos de cada pelicula
-        ArrayList<Genero> g = new ArrayList<Genero>();
-        for (int i = 0; i < p.size(); i++) {
-            //Buscamos los generos de la pelicula
-            g = man.getGenerosPelicula(p.get(i).getId_P());
-            //insertamos los generos a la pelicula
-            p.get(i).setGeneros(g);
-            //vaciamos el array
-            g.clear();
-        }
-        //Añadimos al director de cada pelicula
-        Director dir;
-        for (int i = 0; i < p.size(); i++) {
-            //Buscamos el director de la pelicula
-            dir = man.getDirectorPelicula(p.get(i).getId_P());
-            //Insertamos el director
-            peliculas.get(i).setDir(dir);
-        }
+//        //Añadimos los generos de cada pelicula
+//        ArrayList<Genero> g = new ArrayList<Genero>();
+//        for (int i = 0; i < p.size(); i++) {
+//            //Buscamos los generos de la pelicula
+//            g = man.getGenerosPelicula(p.get(i).getId_P());
+//            //insertamos los generos a la pelicula
+//            p.get(i).setGeneros(g);
+//            //vaciamos el array
+//            g.clear();
+//        }
+//        //Añadimos al director de cada pelicula
+//        Director dir;
+//        for (int i = 0; i < p.size(); i++) {
+//            //Buscamos el director de la pelicula
+//            dir = man.getDirectorPelicula(p.get(i).getId_P());
+//            //Insertamos el director
+//            peliculas.get(i).setDir(dir);
+//        }
         //Si se ha escrito algo en el campo de busqueda se aplicara el filtro
         if (!(busqueda.trim().equals(""))) {
             for (int i = 0; i < p.size(); i++) {

@@ -647,7 +647,7 @@ public class DBManagerHibernate implements Logica {
     }
 
     @Override
-    public Director getDirectorPelicula(int id) {
+    public Director getDirectorPelicula(int id, int i) {
         Director d = null;
         String hql = "from Peliculas where id=: id";
         try {
@@ -672,7 +672,7 @@ public class DBManagerHibernate implements Logica {
     }
 
     @Override
-    public ArrayList<Genero> getGenerosPelicula(int id) {
+    public ArrayList<Genero> getGenerosPelicula(int id, int i) {
         ArrayList<Genero> generos = null;
         String hql = "from Peliculas where id=:id";
         try {
@@ -692,6 +692,25 @@ public class DBManagerHibernate implements Logica {
             session.close();
         }
         return generos;
+    }
+
+    @Override
+    public int obtenerIdSerieMax() {
+        Peliculas pelicula = null;
+        Boolean ok = false;
+        //sentencia hql
+        String hql = "select p from Series p where p.id= (select max(pp.id) from Series pp)";
+        try {
+            //se inserta en un objeto query la sentencia hql
+            Query query = session.createQuery(hql);
+            //se almacena el resultado en un objeto Peliculas
+            pelicula = (Peliculas) query.uniqueResult();
+        } catch (Exception e) {
+            logger.severe("Error on obtenerIdDirectorMax:\n" + e.getMessage());
+        } finally {
+            session.close();
+        }
+        return pelicula.getId();
     }
 
 }

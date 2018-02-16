@@ -511,7 +511,6 @@ public class DarAltaPS extends JDialog implements ActionListener {
         SimpleDateFormat dma = new SimpleDateFormat("dd/MM/yyyy");
         if (ok) {
             try {
-                pel.setId_P(man.obtenerIdPeliculaMax());
                 pel.setTituloP(txtTitulo.getText());
                 pel.setPaisP(txtPais.getText());
                 pel.setDuracionP(Integer.parseInt(txtDuracion.getText()));
@@ -524,9 +523,12 @@ public class DarAltaPS extends JDialog implements ActionListener {
                 pel.setDir(d);
                 pel.setFechaP(dma.parse(txtFechaP.getText()));
                 if (pel instanceof Serie) {
+                    pel.setId_P(man.obtenerIdSerieMax());
                     ((Serie) pel).setEstado((String) boxEstado.getSelectedItem());
                     ((Serie) pel).setFechaFin(dma.parse(txtFechaF.getText()));
                     ((Serie) pel).setNumCap(Integer.parseInt(txtNumCaps.getText()));
+                }else{
+                    pel.setId_P(man.obtenerIdPeliculaMax());
                 }
                 p = pel;
                 if (accion == 1) {
@@ -621,7 +623,7 @@ public class DarAltaPS extends JDialog implements ActionListener {
         txtPais.setText(p.getPaisP());
         txtDuracion.setText(String.valueOf(p.getDuracionP()));
         txtDescrip.setText(p.getDescriP());
-        txtDuracionAl.setText(String.valueOf(p.getDuracionAl()));
+        //txtDuracionAl.setText(String.valueOf(p.getDuracionAl()));
         txtNotaP.setText(String.valueOf(p.getNotaPren()));
         txtNotaU.setText(String.valueOf(p.getNotaUsu()));
         txtDirector.setText(p.getDirector());
