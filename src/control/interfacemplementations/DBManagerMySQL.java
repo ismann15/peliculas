@@ -613,7 +613,7 @@ public class DBManagerMySQL implements Logica{
         Director dir = null;
         ResultSet rs = null;
         try {
-            this.openConnection();
+            
             String select = "SELECT id,nombre,apellido,pais FROM directores where id=(select director from peliculas where id= '" + id + "')";
             rs=stmt.executeQuery(select);
             while (rs.next()) {
@@ -623,7 +623,7 @@ public class DBManagerMySQL implements Logica{
                 dir.setApell(rs.getString(3));
                 dir.setPais_dir(rs.getString(4));
             }
-            this.closeConnection();
+            
         } catch (Exception e) {
             Logger.getLogger(DBManagerMySQL.class.getName()).log(Level.SEVERE, null, e);
         }
@@ -641,7 +641,7 @@ public class DBManagerMySQL implements Logica{
         ArrayList<Genero> gens = new ArrayList<Genero>();
         ResultSet rs = null;
         try {
-            this.openConnection();
+            
             String select = "SELECT DISTINCT id,descripcion FROM generos JOIN peliculasgeneros WHERE idPelicula=" + id;
             rs=stmt.executeQuery(select);
             while (rs.next()) {
@@ -649,7 +649,7 @@ public class DBManagerMySQL implements Logica{
                 g.setId_gen(rs.getInt(1));
                 g.setDescrip_gen(rs.getString(2));
             }
-            this.closeConnection();
+            
         } catch (Exception e) {
             Logger.getLogger(DBManagerMySQL.class.getName()).log(Level.SEVERE, null, e);
         }
