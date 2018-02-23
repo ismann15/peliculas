@@ -353,7 +353,7 @@ public class DBManagerMongoDB implements Logica {
             doc.put("estado", ((Serie) p).getEstado());
         }
         //inserta el resto de datos comunes
-        doc.put("id:P", p.getId_P());
+        doc.put("id_P", p.getId_P());
         doc.put("tituloP", p.getTituloP());
         doc.put("paisP", p.getPaisP());
         doc.put("fechaP", dma.format(p.getFechaP()));
@@ -428,7 +428,7 @@ public class DBManagerMongoDB implements Logica {
         while (docs.hasNext()) {
             Document doc = docs.next();
 
-            if (doc.getString("tituloP").equalsIgnoreCase(titulo) && doc.getBoolean("esSerie") == ok) {
+            if (doc.getString("tituloP").equalsIgnoreCase(titulo)) {
                 Pelicula p = new Pelicula();
                 p.setId_P(doc.getInteger("id_P"));
                 p.setTituloP(doc.getString("tituloP"));
@@ -446,8 +446,17 @@ public class DBManagerMongoDB implements Logica {
                 p.setNotaPren((float) notaPren);
                 double notaUsu = doc.getDouble("notaUsu");
                 p.setNotaUsu((float) notaUsu);
-                p.setDir(getDirectorPelicula(doc.getInteger("id_P"), 1));
-                p.setGeneros(getGenerosPelicula(doc.getInteger("id_P"), 1));
+                
+                Document director = (Document) doc.get("director");
+                p.setDir(new Director(director.getInteger("idDirector"), director.getString("nombreDirector"),
+                        director.getString("apellidoDirector"), director.getString("paisDirector")));
+
+                ArrayList<Document> generos = (ArrayList<Document>) doc.get("generos");
+
+                for (Document d : generos) {
+                    p.getGen().add(new Genero(d.getInteger("idGenero"), d.getString("nombreGenero")));
+                }
+                
                 if (ok) {
                     ((Serie) p).setEstado(doc.getString("estado"));
                     ((Serie) p).setNumCap(doc.getInteger("numCap"));
@@ -592,7 +601,6 @@ public class DBManagerMongoDB implements Logica {
                 p.setNotaUsu((float) notaUsu);
 
                 Document director = (Document) doc.get("director");
-                //cast to int
                 p.setDir(new Director(director.getInteger("idDirector"), director.getString("nombreDirector"),
                         director.getString("apellidoDirector"), director.getString("paisDirector")));
 
@@ -601,6 +609,7 @@ public class DBManagerMongoDB implements Logica {
                 for (Document d : generos) {
                     p.getGen().add(new Genero(d.getInteger("idGenero"), d.getString("nombreGenero")));
                 }
+                System.out.println(p.getGen().size());
                 peliculas.add(p);
             }
         }
