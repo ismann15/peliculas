@@ -140,17 +140,17 @@ public class Manager {
      * @param id_P identificador de la pelicula
      * @return director de la pelicula 
      */
-//    public Director getDirectorPelicula(int id) {
-//        return dbman.getDirectorPelicula(id);
-//    }
-//    /**
-//     * Metodo que devuelve los generos de una pelicula
-//     * @param id_P identificador de la pelicula
-//     * @return generos de la pelicula 
-//     */
-//    public ArrayList<Genero>getGenerosPelicula (int id){
-//        return dbman.getGenerosPelicula(id);
-//    }
+    public Director getDirectorPelicula(int id) {
+        return dbman.getDirectorPelicula(id,0);
+    }
+    /**
+     * Metodo que devuelve los generos de una pelicula
+     * @param id_P identificador de la pelicula
+     * @return generos de la pelicula 
+     */
+    public ArrayList<Genero>getGenerosPelicula (int id){
+        return dbman.getGenerosPelicula(id,0);
+    }
 
     public void modificarP(Pelicula pel) {
         dbman.eliminarPS(pel);

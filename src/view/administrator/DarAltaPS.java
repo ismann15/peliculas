@@ -71,7 +71,7 @@ public class DarAltaPS extends JDialog implements ActionListener {
     private static Administrador admin;
     private Boolean tieneDatos = false;
     private int baseDeDatos;
-
+    private ArrayList<Genero> generosPelicula;
     
 
     /**
@@ -82,7 +82,7 @@ public class DarAltaPS extends JDialog implements ActionListener {
     public DarAltaPS(Administrador a, Pelicula p, int baseDeDatos) {
         this.p = p;
         admin = a;
-        this.baseDeDatos= baseDeDatos;
+        this.baseDeDatos = baseDeDatos;
         man = new Manager(baseDeDatos);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setBounds(100, 100, 1097, 465);
@@ -323,13 +323,18 @@ public class DarAltaPS extends JDialog implements ActionListener {
         btnCancelar.addActionListener(this);
         rdbtnPelicula.addActionListener(this);
         rdbtnSerie.addActionListener(this);
+        
         cargarDatos();
-        if (!(this.p == null)) {
+        
+        generosPelicula= new ArrayList<>();
+        
+        pel= new Pelicula();
+        /*
+        if (this.p != null) {
             pel = p;
             tieneDatos = true;
             cargarDatosPelicula(p);
-        }
-        
+        }*/
 
     }
 
@@ -398,11 +403,11 @@ public class DarAltaPS extends JDialog implements ActionListener {
         } else if (e.getSource().equals(btnSeleccionarDir)) {
             selecionarDir();
         } else if (e.getSource().equals(btnAnadirG)) {
-            anadirGenero(pel);
+            anadirGenero();
         } else if (e.getSource().equals(btnBorrarG)) {
-            borrarGenero(pel);
+            borrarGenero();
         } else if (e.getSource().equals(btnLimpiarG)) {
-            limpiarGeneros(pel);
+            limpiarGeneros();
         } else if (e.getSource().equals(btnCrearDirector)) {
             goToCrearDirector();
         } else if (e.getSource().equals(btnCrearGenero)) {
@@ -427,24 +432,23 @@ public class DarAltaPS extends JDialog implements ActionListener {
     /**
      * Metodo para añadir un genero a la pelicula seleccionada
      *
-     * @param pel pelicula seleccionada
      */
-    private void anadirGenero(Pelicula pel) {
+    private void anadirGenero() {
         if (boxGeneros.getSelectedIndex() == -1) {
             JOptionPane.showMessageDialog(null, "Selecciona un genero primero", "Error", JOptionPane.ERROR_MESSAGE);
         } else {
-            Boolean ok = false;
-            Genero g = man.buscaGenero((String) boxGeneros.getSelectedItem());
-            for (int i = 0; i < pel.getGeneros().size(); i++) {
-                //comprueba si l genero a insertar en la pelicula, ya esta insertado
-                if (pel.getGeneros().get(i).getDescrip_gen().equals((String) boxGeneros.getSelectedItem())) {
-                    ok = true;
+            Boolean ok = true;
+            Genero g= man.buscaGenero(boxGeneros.getSelectedItem().toString());
+            //Genero g = man.buscaGenero((boxGeneros.getSelectedItem()));
+            for (Genero genero : generosPelicula) {
+                if (g.getId_gen()==genero.getId_gen()){
+                    ok=false;
                     break;
                 }
             }
-            if (!ok) {
-                pel.setGenero(g);
-                imprimirGeneros(pel);
+            if (ok) {
+                generosPelicula.add(g);
+                imprimirGeneros(generosPelicula);
             } else {
                 JOptionPane.showMessageDialog(null, "Genero ya insertado", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -454,26 +458,24 @@ public class DarAltaPS extends JDialog implements ActionListener {
     /**
      * Metodo que elimina un genero de la pelicula seleccionada
      *
-     * @param pel pelicula seleccionada
      */
-    private void borrarGenero(Pelicula pel) {
+    private void borrarGenero() {
         if (boxGeneros.getSelectedIndex() == -1) {
             JOptionPane.showMessageDialog(null, "Selecciona un genero primero", "Error", JOptionPane.ERROR_MESSAGE);
         } else {
             Boolean ok = false;
-            Genero g = man.buscaGenero((String) boxGeneros.getSelectedItem());
-            for (int i = 0; i < pel.getGeneros().size(); i++) {
-                //comprueba si l genero a insertar en la pelicula, ya esta insertado
-                if (pel.getGeneros().get(i).getDescrip_gen().equals((String) boxGeneros.getSelectedItem())) {
-                    ok = true;
-                    break;
+            Genero g= man.buscaGenero(boxGeneros.getSelectedItem().toString());
+            //Genero g = man.buscaGenero((boxGeneros.getSelectedItem()));
+            for (int i=0;i<generosPelicula.size();i++){
+                if(g.getId_gen()==generosPelicula.get(i).getId_gen()){
+                    generosPelicula.remove(i);
+                    ok=true;
                 }
             }
-            if (!ok) {
-                pel.delGen(g);
-                imprimirGeneros(pel);
+            if (ok) {
+                imprimirGeneros(generosPelicula);
             } else {
-                JOptionPane.showMessageDialog(null, "Genero ya insertado", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "Este genero no esta seleccionado", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -481,11 +483,11 @@ public class DarAltaPS extends JDialog implements ActionListener {
     /**
      * Metodo que borra todos los generos ded una pelicula
      *
-     * @param pel pelicula con generos
      */
-    private void limpiarGeneros(Pelicula pel) {
-        pel.borrarGeneros();
-        imprimirGeneros(pel);
+    private void limpiarGeneros() {
+        generosPelicula.clear();
+        imprimirGeneros(generosPelicula);
+        
     }
 
     /**
@@ -493,8 +495,7 @@ public class DarAltaPS extends JDialog implements ActionListener {
      *
      * @param p pelicula que tiene los generos
      */
-    private void imprimirGeneros(Pelicula p) {
-        ArrayList<Genero> generos = p.getGeneros();
+    private void imprimirGeneros( ArrayList<Genero> generos) {
         txtGenero.setText("");
         for (Genero genero : generos) {
             txtGenero.append(genero.getDescrip_gen() + "\n");
@@ -518,16 +519,16 @@ public class DarAltaPS extends JDialog implements ActionListener {
                 pel.setNotaPren(Float.parseFloat(txtNotaP.getText()));
                 pel.setNotaUsu(Float.parseFloat(txtNotaU.getText()));
                 String nombreD = txtDirector.getText().substring(0, txtDirector.getText().indexOf(" "));
-                String apellidoD = txtDirector.getText().substring(txtDirector.getText().indexOf(" "));
-                Director d = man.buscarDirector(nombreD, apellidoD);
-                pel.setDir(d);
+                String apellidoD = txtDirector.getText().substring(txtDirector.getText().indexOf(" ")+1);
+                pel.setDir(man.buscarDirector(nombreD, apellidoD));
+                pel.setGen(generosPelicula);
                 pel.setFechaP(dma.parse(txtFechaP.getText()));
                 if (pel instanceof Serie) {
                     pel.setId_P(man.obtenerIdSerieMax());
                     ((Serie) pel).setEstado((String) boxEstado.getSelectedItem());
                     ((Serie) pel).setFechaFin(dma.parse(txtFechaF.getText()));
                     ((Serie) pel).setNumCap(Integer.parseInt(txtNumCaps.getText()));
-                }else{
+                } else {
                     pel.setId_P(man.obtenerIdPeliculaMax());
                 }
                 p = pel;
@@ -613,29 +614,33 @@ public class DarAltaPS extends JDialog implements ActionListener {
         MenuAdmin m = new MenuAdmin(admin, baseDeDatos);
         m.setVisible(true);
     }
+
     /**
      * Metodo que imprime los datos de una pelicula que recibe
+     *
      * @param p pelicula cuyos datos van a ser impresos
      */
     private void cargarDatosPelicula(Pelicula p) {
-        SimpleDateFormat dma= new SimpleDateFormat("dd/MM/yyyy");
-        txtTitulo.setText(p.getTituloP());
-        txtPais.setText(p.getPaisP());
-        txtDuracion.setText(String.valueOf(p.getDuracionP()));
-        txtDescrip.setText(p.getDescriP());
-        //txtDuracionAl.setText(String.valueOf(p.getDuracionAl()));
-        txtNotaP.setText(String.valueOf(p.getNotaPren()));
-        txtNotaU.setText(String.valueOf(p.getNotaUsu()));
-        txtDirector.setText(p.getDirector());
-        txtFechaP.setText(dma.format(p.getFechaP()));
-        for (Genero genero : p.getGen()) {
-            txtGenero.append(genero.getDescrip_gen()+"\n");
+        if (p != null) {
+            SimpleDateFormat dma = new SimpleDateFormat("dd/MM/yyyy");
+            txtTitulo.setText(p.getTituloP());
+            txtPais.setText(p.getPaisP());
+            txtDuracion.setText(String.valueOf(p.getDuracionP()));
+            txtDescrip.setText(p.getDescriP());
+            //txtDuracionAl.setText(String.valueOf(p.getDuracionAl()));
+            txtNotaP.setText(String.valueOf(p.getNotaPren()));
+            txtNotaU.setText(String.valueOf(p.getNotaUsu()));
+            txtDirector.setText(p.getDirector());
+            txtFechaP.setText(dma.format(p.getFechaP()));
+            for (Genero genero : p.getGen()) {
+                txtGenero.append(genero.getDescrip_gen() + "\n");
+            }
+            if (p instanceof Serie) {
+                boxEstado.setSelectedItem(((Serie) p).getEstado());
+                txtFechaF.setText(dma.format((((Serie) p).getFechaFin())));
+                txtNumCaps.setText(String.valueOf(((Serie) p).getNumCap()));
+            }
         }
-        if(p instanceof Serie){
-            boxEstado.setSelectedItem(((Serie) p).getEstado());
-            txtFechaF.setText(dma.format((((Serie) p).getFechaFin())));
-            txtNumCaps.setText(String.valueOf(((Serie) p).getNumCap()));
-        }
-        
-   }
+
+    }
 }

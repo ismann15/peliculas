@@ -14,7 +14,6 @@ import java.sql.SQLException;
 import control.interfacee.Logica;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Administrador;
@@ -29,16 +28,16 @@ import model.Serie;
  */
 public class DBManagerOracle implements Logica {
 
-    private static final Logger logger = Logger.getLogger(DBManagerHibernate.class.getName());
+    private static final Logger logger = Logger.getLogger(DBManagerOracle.class.getName());
     private Connection con;
-
+    private ResultSet rs;
     /**
      * Metodo para abrir una conexion con la BD
      */
     public void openConection() {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
-            con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "isma", "isma");
+            con = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "USUARIOISMA", "USUARIOISMA");
         } catch (ClassNotFoundException e) {
             logger.log(Level.SEVERE, "has ocurred an error oppening the connection : " + e.getMessage());
         } catch (SQLException e) {
@@ -64,8 +63,8 @@ public class DBManagerOracle implements Logica {
         this.openConection();
         try {
             PreparedStatement select = con.prepareStatement(sql);
-            ResultSet rs = select.executeQuery();
-            if (!rs.next()) {
+            rs = select.executeQuery();
+            if (rs.next()) {
                 ok = true;
             }
         } catch (SQLException e) {
@@ -79,13 +78,15 @@ public class DBManagerOracle implements Logica {
     @Override
     public boolean comprobarPass(String nombreU, String pass) {
         Boolean ok = false;
-        String sql = "SELECT * FROM TABLEADMINISTRADOR WHERE adminuser=`" + nombreU + "' and adminpassword ='" + pass + "'";
+        nombreU=nombreU.trim();
+        pass=pass.trim();
+        String sql = "SELECT * FROM TABLEADMINISTRADOR WHERE adminuser like '" + nombreU + "' AND adminpassword like '"+pass+"'";
         this.openConection();
         try {
             PreparedStatement select = con.prepareStatement(sql);
-            ResultSet rs = select.executeQuery();
-            if (!rs.next()) {
-                ok = true;
+            rs = select.executeQuery(sql);
+            if (rs.next()) {
+                ok=true;
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "has ocurred an error on comprobarPass : " + e.getMessage());
@@ -155,13 +156,13 @@ public class DBManagerOracle implements Logica {
     public boolean comprobarGeneroExiste(String nombreGen) {
         Boolean ok = false;
         nombreGen = nombreGen.toLowerCase();
-        String sql = "SELECT descripcion FROM TABLEGENERO WHERE lower(descipcion)='" + nombreGen + "'";
+        String sql = "SELECT * FROM TABLEGENERO WHERE lower(DESCRIPCCION)='" + nombreGen + "'";
         this.openConection();
         try {
             PreparedStatement select = con.prepareStatement(sql);
             ResultSet rs = select.executeQuery();
-            if (!rs.next()) {
-                ok = true;
+            if(rs.next()){
+                ok=true;
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "has occurred an error on comprobarGeneroExiste : " + e.getMessage());
@@ -174,19 +175,22 @@ public class DBManagerOracle implements Logica {
     @Override
     public int obtenerIdGeneroMax() {
         Integer id = 0;
-        String sql = "SELECT id_G+1 AS id FROM TABLEGENERO WHERE id_G=(SELECT MAX(id_G) FROM TABLEGENERO)";
+        String sql = "SELECT MAX (id_G) from TABLEGENERO";
         this.openConection();
         try {
             PreparedStatement select = con.prepareStatement(sql);
-            ResultSet rs = select.executeQuery();
-            if (rs != null) {
-                id = rs.getInt("id");
+            ResultSet rs = select.executeQuery(sql);
+            if (rs.next()) {
+                id = rs.getInt("id")+1;
+            }else{
+                id=1;
             }
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "has occurred an error on obtenerIdGeneroMax: " + e.getMessage());
         } finally {
             this.closeConnection();
         }
+         logger.log(Level.INFO, "The generated id is {0}", id+1);
         return id;
     }
 

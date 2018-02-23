@@ -127,6 +127,8 @@ public class MenuAdmin extends JFrame implements ActionListener {
             btnIr.setEnabled(true);
         } else if (e.getSource().equals(rdbtnEliminarPS)) {
             btnIr.setEnabled(true);
+        }else if (e.getSource().equals(rdbtnBuscarPeliculas)) {
+            btnIr.setEnabled(true);
         } else if (e.getSource().equals(btnCerrarSesion)) {
             Inicio_sesion a = new Inicio_sesion(baseDeDatos);
             a.setVisible(true);

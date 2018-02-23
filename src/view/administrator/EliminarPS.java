@@ -51,22 +51,20 @@ public class EliminarPS extends JDialog implements ActionListener {
     private JLabel lblEstado;
     private JLabel lblFechaF;
     private JLabel lblNumCaps;
-    private JComboBox boxResultado;
-    private ArrayList<Pelicula> p;
+    private JComboBox<String> boxResultado;
+    private ArrayList<Pelicula> peliculasBusqueda;
     private JTextArea txtDescrip;
     private JTextArea txtGenero;
     private static Administrador admin;
     private int baseDeDatos;
     private Manager man;
 
-   
-
     /**
      * Create the frame.
      */
     public EliminarPS(Administrador ad, int baseDeDatos) {
         admin = ad;
-        this.baseDeDatos= baseDeDatos;
+        this.baseDeDatos = baseDeDatos;
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setBounds(100, 100, 1097, 465);
         contentPane = new JPanel();
@@ -285,8 +283,8 @@ public class EliminarPS extends JDialog implements ActionListener {
         txtDirector.setBounds(309, 239, 175, 20);
         contentPane.add(txtDirector);
         txtDirector.setColumns(10);
-        
-        man= new Manager(baseDeDatos);
+
+        man = new Manager(baseDeDatos);
 
     }
 
@@ -307,8 +305,6 @@ public class EliminarPS extends JDialog implements ActionListener {
             } else {
                 //Buscamos en la BDlo que hay escrrito en la busqueda
                 buscarPedido();
-                //Cargamos el resultado de la busqueda en el coboBox
-                cargarTitulos();
             }
         } else if (e.getSource().equals(btnAadir)) {
             cargarDatosPS();
@@ -326,13 +322,16 @@ public class EliminarPS extends JDialog implements ActionListener {
     private void eliminarPS() {
         String titulo = boxResultado.getSelectedItem().toString();
         int i;
-        for (i = 0; i < p.size(); i++) {
-            if (p.get(i).getTituloP().equals(titulo)) {
+        for (i = 0; i < peliculasBusqueda.size(); i++) {
+            if (peliculasBusqueda.get(i).getTituloP().equals(titulo)) {
                 break;
             }
         }
-        
-        man.eliminarPS(p.get(i));
+
+        man.eliminarPS(peliculasBusqueda.get(i));
+        limpiarDatos();
+        JOptionPane.showMessageDialog(new JPanel(), "Eliminada correctamente", "Info",
+                JOptionPane.INFORMATION_MESSAGE);
 
     }
 
@@ -341,48 +340,41 @@ public class EliminarPS extends JDialog implements ActionListener {
             JOptionPane.showMessageDialog(new JPanel(), "Debes seleccionar primero un titulo", "Error",
                     JOptionPane.ERROR_MESSAGE);
         } else {
-            String titulo = boxResultado.getSelectedItem().toString();
+            String titulo = (String) boxResultado.getSelectedItem();
             int i;
-            for (i = 0; i < p.size(); i++) {
-                if (((Pelicula) p.get(i)).getTituloP().equals(titulo)) {
+            Pelicula p = null;
+            for (i = 0; i < peliculasBusqueda.size(); i++) {
+                if (((Pelicula) peliculasBusqueda.get(i)).getTituloP().equals(titulo)) {
+                    if (rdbtnSerie.isSelected()) {
+                        p = new Serie();
+                    } else {
+                        p = new Pelicula();
+                    }
                     break;
                 }
             }
-            SimpleDateFormat a = new SimpleDateFormat("dd/MM/yyyy");
-            txtTitulo.setText(((Pelicula) p.get(i)).getTituloP());
-            txtPais.setText(((Pelicula) p.get(i)).getPaisP());
-            txtFechaP.setText(a.format((((Pelicula) p.get(i)).getFechaP())));
-            txtDuracion.setText(String.valueOf(((Pelicula) p.get(i)).getDuracionP()));
-            txtDescrip.setText(((Pelicula) p.get(i)).getDescriP());
-            txtNotaP.setText(String.valueOf(((Pelicula) p.get(i)).getNotaPren()));
-            txtNotaP.setText(String.valueOf(((Pelicula) p.get(i)).getNotaUsu()));
-            txtDirector.setText(((Pelicula) p.get(i)).getDirector());
-            ArrayList<Genero> g = new ArrayList<Genero>();
-            ((Pelicula) p.get(i)).getGeneros(g);
-            for (Genero genero : g) {
+            SimpleDateFormat dma = new SimpleDateFormat("dd/MM/yyyy");
+            //obtener la pelicula seleccionada
+            p = peliculasBusqueda.get(i);
+
+            //imprimir los datos
+            txtTitulo.setText(p.getTituloP());
+            txtPais.setText(p.getPaisP());
+            txtFechaP.setText(dma.format(p.getFechaP()));
+            txtDuracion.setText(String.valueOf(p.getDuracionP()));
+            txtNotaP.setText(String.valueOf(p.getNotaPren()));
+            txtNotaU.setText(String.valueOf(p.getNotaPren()));
+            txtDescrip.setText(p.getDescriP());
+            txtDirector.setText(p.getDirector());
+
+            for (Genero genero : p.getGen()) {
                 txtGenero.append(genero.getDescrip_gen() + "\n");
             }
             if (rdbtnSerie.isSelected()) {
-                txtEstado.setText(((Serie) p.get(i)).getEstado());;
-                txtFechaF.setText(a.format((((Serie) p.get(i)).getFechaFin())));
-                txtNumCaps.setText(String.valueOf(((Serie) p.get(i)).getNumCap()));
+                txtEstado.setText(((Serie) p).getEstado());;
+                txtFechaF.setText(dma.format((((Serie) p).getFechaFin())));
+                txtNumCaps.setText(String.valueOf(((Serie) p).getNumCap()));
             }
-        }
-
-    }
-
-    private void cargarTitulos() {
-        boolean ok = true;
-        if (p.isEmpty()) {
-            JOptionPane.showMessageDialog(new JPanel(), "No se han encontrado coincidencias");
-            txtBusqueda.setText("");
-            ok = false;
-        } else {
-            for (int i = 0; i < p.size(); i++) {
-                String a = ((Pelicula) p.get(i)).getTituloP();
-                boxResultado.addItem(a);
-            }
-            boxResultado.setSelectedIndex(-1);
         }
 
     }
@@ -390,27 +382,37 @@ public class EliminarPS extends JDialog implements ActionListener {
     private void buscarPedido() {
         String busqueda = txtBusqueda.getText().toString();
         int i = 0;
-        p = new ArrayList<Pelicula>();
+        peliculasBusqueda = new ArrayList<Pelicula>();
         if (rdbtnSerie.isSelected()) {
             i = 1;
         } else if (rdbtnPelicula.isSelected()) {
             i = 2;
         }
         //Buscamos las peliculas
-        p = man.obtenerPS(i, busqueda);
-//        //Buscamos los generos de las peliculas
-//        ArrayList<Genero> g = new ArrayList<Genero>();
-//        for (int j = 0; j < p.size(); j++) {
-//            g.clear();
-//            g = man.getGenerosPelicula(p.get(j).getId_P());
-//            p.get(j).setGeneros(g);
-//        }
-//        //Buscamos los directores de las peliculas
-//        Director dir;
-//        for (int j = 0; j < p.size(); j++) {
-//            dir = man.getDirectorPelicula(p.get(j).getId_P());
-//            p.get(j).setDir(dir);
-//        }
+        peliculasBusqueda = man.obtenerPS(i, busqueda);
+        //Buscamos los generos de las peliculas
+        ArrayList<Genero> g;
+        for (int j = 0; j < peliculasBusqueda.size(); j++) {
+            g = man.getGenerosPelicula(peliculasBusqueda.get(j).getId_P());
+            System.out.println(g.size());
+            peliculasBusqueda.get(j).setGeneros(g);
+        }
+
+        //Buscamos los directores de las peliculas
+        Director dir;
+        for (int j = 0; j < peliculasBusqueda.size(); j++) {
+            dir = man.getDirectorPelicula(peliculasBusqueda.get(j).getId_P());
+            peliculasBusqueda.get(j).setDir(dir);
+        }
+        if (peliculasBusqueda.isEmpty()) {
+            JOptionPane.showMessageDialog(new JPanel(), "No se han encontrado coincidencias");
+            txtBusqueda.setText("");
+        } else {
+            for (int ite = 0; ite < peliculasBusqueda.size(); ite++) {
+                boxResultado.addItem(peliculasBusqueda.get(ite).getTituloP());
+            }
+            boxResultado.setSelectedIndex(-1);
+        }
 
     }
 
@@ -422,5 +424,21 @@ public class EliminarPS extends JDialog implements ActionListener {
         txtNumCaps.setVisible(b);
         lblNumCaps.setVisible(b);
 
+    }
+
+    private void limpiarDatos() {
+        txtTitulo.setText("");
+        txtPais.setText("");
+        txtFechaP.setText("");
+        txtDuracion.setText("");
+        txtNotaP.setText("");
+        txtNotaU.setText("");
+        txtDescrip.setText("");
+        txtDirector.setText("");
+        txtGenero.setText("");
+        txtEstado.setText("");
+        txtFechaF.setText("");
+        txtNumCaps.setText("");
+        boxResultado.remove(boxResultado.getSelectedIndex());
     }
 }

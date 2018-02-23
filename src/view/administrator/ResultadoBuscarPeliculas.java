@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
+import model.Genero;
 
 public class ResultadoBuscarPeliculas extends JDialog implements ActionListener{
 
@@ -129,6 +130,10 @@ public class ResultadoBuscarPeliculas extends JDialog implements ActionListener{
             if(((Serie)p).getEstado().equals("finalizada")) textArea.append("Fecha finalizacion: "+dma.format(((Serie)p).getFechaFin())+"\n");
         }
         textArea.append("\nSinopsis\n"+p.getDescriP()+"\n\n");
+        textArea.append("Generos: \n");
+        for (Genero gen : p.getGen()) {
+            textArea.append("-"+gen.getDescrip_gen()+"\n\t");
+        }
         textArea.append("Director: "+p.getDirector()+"\n");
         textArea.append("Pais: "+p.getPaisP()+"\n");
         textArea.append("Duracion: "+p.getDuracionP()+"min\n");

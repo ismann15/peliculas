@@ -63,19 +63,18 @@ public class ModificarPS extends JDialog implements ActionListener {
     private JTextArea txtGenero;
     private JTextField txtDirector;
     private Pelicula pel;
-    private ArrayList<Pelicula> peliculas = new ArrayList<>();
+    private ArrayList<Pelicula> peliculas;
     private ArrayList<Genero> generos = new ArrayList<>();
     private ArrayList<Director> directores = new ArrayList<>();
     private Administrador admin;
     private int baseDeDatos;
-    
 
     /**
      * Create the frame.
      */
     public ModificarPS(Administrador admin, int baseDeDatos) {
         this.admin = admin;
-        this.baseDeDatos= baseDeDatos;
+        this.baseDeDatos = baseDeDatos;
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setBounds(100, 100, 1097, 465);
         contentPane = new JPanel();
@@ -285,12 +284,10 @@ public class ModificarPS extends JDialog implements ActionListener {
         contentPane.add(btnBuscar);
 
         boxResultado = new JComboBox();
-        boxResultado.setVisible(false);
         boxResultado.setBounds(144, 54, 124, 20);
         contentPane.add(boxResultado);
 
         btnAadir = new JButton("A\u00F1adir");
-        btnAadir.setVisible(false);
         btnAadir.setBounds(278, 53, 89, 23);
         contentPane.add(btnAadir);
 
@@ -309,9 +306,10 @@ public class ModificarPS extends JDialog implements ActionListener {
         rdbtnSerie.addActionListener(this);
         //Por defecto se buscara por pelicula
         rdbtnPelicula.setSelected(true);
+        man = new Manager(baseDeDatos);
         //Cargar comboBox con datos
         cargarCombos();
-        man = new Manager(baseDeDatos);
+
     }
 
     @Override
@@ -363,42 +361,37 @@ public class ModificarPS extends JDialog implements ActionListener {
     private void buscarPS() {
         String busqueda = textField.getText().toLowerCase();
         Boolean esSerie = rdbtnSerie.isSelected();
-        ArrayList<Pelicula> p = new ArrayList<>();
-        peliculas.clear();
+        peliculas= new ArrayList<>();
 
         if (esSerie) {
-            p = man.getAllSeries();
+            peliculas = man.getAllSeries();
         } else {
-            p = man.getAllPeliculas();
+            peliculas = man.getAllPeliculas();
         }
-//        //Añadimos los generos de cada pelicula
-//        ArrayList<Genero> g = new ArrayList<Genero>();
-//        for (int i = 0; i < p.size(); i++) {
-//            //Buscamos los generos de la pelicula
-//            g = man.getGenerosPelicula(p.get(i).getId_P());
-//            //insertamos los generos a la pelicula
-//            p.get(i).setGeneros(g);
-//            //vaciamos el array
-//            g.clear();
-//        }
-//        //Añadimos al director de cada pelicula
-//        Director dir;
-//        for (int i = 0; i < p.size(); i++) {
-//            //Buscamos el director de la pelicula
-//            dir = man.getDirectorPelicula(p.get(i).getId_P());
-//            //Insertamos el director
-//            peliculas.get(i).setDir(dir);
-//        }
+        //Añadimos los generos de cada pelicula
+        ArrayList<Genero> g ;
+        for (int i = 0; i < peliculas.size(); i++) {
+            g= new ArrayList<>();
+            //Buscamos los generos de la pelicula
+            g = man.getGenerosPelicula(peliculas.get(i).getId_P());
+            //insertamos los generos a la pelicula
+            peliculas.get(i).setGeneros(g);
+        }
+        //Añadimos al director de cada pelicula
+        Director dir;
+        for (int i = 0; i < peliculas.size(); i++) {
+            //Buscamos el director de la pelicula
+            dir = man.getDirectorPelicula(peliculas.get(i).getId_P());
+            //Insertamos el director
+            peliculas.get(i).setDir(dir);
+        }
         //Si se ha escrito algo en el campo de busqueda se aplicara el filtro
         if (!(busqueda.trim().equals(""))) {
-            for (int i = 0; i < p.size(); i++) {
-                if (p.get(i).getTituloP().toLowerCase().equals(busqueda)) {
-                    peliculas.add(p.get(i));
+            for (int i = 0; i < peliculas.size(); i++) {
+                if (!(peliculas.get(i).getTituloP().toLowerCase().equals(busqueda))) {
+                    peliculas.remove(i);
                 }
             }
-        } else {
-            //si no hay nada escrito, se añaden todas las peliculas
-            peliculas = p;
         }
         //se añaden las peliculas al comboBox
         anadirAlCombo();
@@ -412,6 +405,7 @@ public class ModificarPS extends JDialog implements ActionListener {
         for (Pelicula pelicula : peliculas) {
             boxResultado.addItem(pelicula.getTituloP());
         }
+        boxResultado.setSelectedIndex(-1);
     }
 
     /**
@@ -547,6 +541,7 @@ public class ModificarPS extends JDialog implements ActionListener {
     /**
      * Metodo que recoje los nuevos datos de la pelicula a modificar, y los sube
      * a la BD
+     *
      * @param pel pelicula a modificar
      */
     private void modificarPelicula(Pelicula pel) {
@@ -561,20 +556,20 @@ public class ModificarPS extends JDialog implements ActionListener {
                 pel.setNotaPren(Float.parseFloat(txtNotaP.getText()));
                 pel.setNotaUsu(Float.parseFloat(txtNotaU.getText()));
                 String nombreD = txtDirector.getText().substring(0, txtDirector.getText().indexOf(" "));
-                String apellidoD = txtDirector.getText().substring(txtDirector.getText().indexOf(" "));
-                Director d = man.buscarDirector(nombreD, apellidoD);
-                pel.setDir(d);
+                String apellidoD = txtDirector.getText().substring(txtDirector.getText().indexOf(" ")+1);
+                pel.setDir(man.buscarDirector(nombreD, apellidoD));
                 pel.setFechaP(dma.parse(txtFechaP.getText()));
                 if (pel instanceof Serie) {
-                    ((Serie)pel).setEstado((String) boxEstado.getSelectedItem());
-                    ((Serie)pel).setFechaFin(dma.parse(txtFechaF.getText()));
-                    ((Serie)pel).setNumCap(Integer.parseInt(txtNumCaps.getText()));
+                    ((Serie) pel).setEstado((String) boxEstado.getSelectedItem());
+                    ((Serie) pel).setFechaFin(dma.parse(txtFechaF.getText()));
+                    ((Serie) pel).setNumCap(Integer.parseInt(txtNumCaps.getText()));
                 }
                 man.modificarP(pel);
             } catch (ParseException ex) {
                 Logger.getLogger(ModificarPS.class.getName()).log(Level.SEVERE, null, ex);
             }
-
+            JOptionPane.showMessageDialog(new JPanel(), "Modificada correctamente", "Info",
+                JOptionPane.INFORMATION_MESSAGE);
         }
     }
 

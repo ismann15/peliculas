@@ -84,6 +84,8 @@ public class Inicio_sesion extends JDialog implements ActionListener {
         man= new Manager(baseDeDatos);       
     }
 
+    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         //Al pulsar el boton de iniciar sesion

@@ -18,26 +18,30 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 
-public class BuscarPeliculas extends JDialog implements ActionListener{
+public class BuscarPeliculas extends JDialog implements ActionListener {
 
     private JPanel contentPane;
     private JTextField txtTitulo;
     private JLabel lblTitulo;
     private JCheckBox boxEsSerie;
     private JButton btnBuscar;
-    private JButton btnCancelar;
+    private JButton btnVolver;
     private Administrador admin;
     private JComboBox boxGenero;
     private JComboBox boxDirector;
     private Manager man;
     private int baseDeDatos;
-    
+
+    private ArrayList<Genero> generos = new ArrayList<>();
+    private ArrayList<Director> directores = new ArrayList<>();
+    private ArrayList<Pelicula> pelis = new ArrayList<>();
+
     /**
      * Create the frame.
      */
     public BuscarPeliculas(Administrador admin, int baseDeDatos) {
         this.admin = admin;
-        this.baseDeDatos= baseDeDatos;
+        this.baseDeDatos = baseDeDatos;
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setBounds(100, 100, 458, 149);
         contentPane = new JPanel();
@@ -66,7 +70,7 @@ public class BuscarPeliculas extends JDialog implements ActionListener{
         btnBuscar.setBounds(345, 29, 89, 23);
         contentPane.add(btnBuscar);
 
-        JButton btnVolver = new JButton("Volver");
+        btnVolver = new JButton("Volver");
         btnVolver.setBounds(345, 72, 89, 23);
         contentPane.add(btnVolver);
 
@@ -81,180 +85,173 @@ public class BuscarPeliculas extends JDialog implements ActionListener{
         boxEsSerie = new JCheckBox("Es serie");
         boxEsSerie.setBounds(164, 72, 116, 23);
         contentPane.add(boxEsSerie);
-        
+
         btnBuscar.addActionListener(this);
-        btnCancelar.addActionListener(this);
-        
-        man= new Manager(baseDeDatos);
+        btnVolver.addActionListener(this);
+
+        man = new Manager(baseDeDatos);
         cargarDatos();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource().equals(btnBuscar)){
+        if (e.getSource().equals(btnBuscar)) {
             buscarP();
-        }else if(e.getSource().equals(btnCancelar)){
+        } else if (e.getSource().equals(btnVolver)) {
             this.dispose();
-            MenuAdmin a= new MenuAdmin(admin, baseDeDatos);
+            MenuAdmin a = new MenuAdmin(admin, baseDeDatos);
             a.setVisible(true);
         }
     }
+
     /**
      * Metodo para buscar las pliculas segun los filtros selecciionados
      */
     private void buscarP() {
-        String titulo= txtTitulo.getText();
-        String genero= (String) boxGenero.getSelectedItem();
-        String director= (String) boxDirector.getSelectedItem();
+        String titulo = txtTitulo.getText();
+        String genero = (String) boxGenero.getSelectedItem();
+        String director = (String) boxDirector.getSelectedItem();
         //comprobamos si se buscan series o no
-        Boolean esSerie=boxEsSerie.isSelected();
-        ArrayList <Pelicula> pelis= new ArrayList <Pelicula>();
-        if(esSerie){
+        Boolean esSerie = boxEsSerie.isSelected();
+        ArrayList<Pelicula> peliculas = new ArrayList<Pelicula>();
+        if (esSerie) {
             //Buscamos todas las series
-            pelis=man.getAllSeries();
-        }else{
+            peliculas = man.getAllSeries();
+        } else {
             //Buscamos todas las peliculas
-            pelis=man.getAllPeliculas();
+            peliculas = man.getAllPeliculas();
         }
-       /* //Añadimos los generos de cada pelicula
-        ArrayList <Genero> g= new ArrayList<Genero>();
-        for(int i=0;i<pelis.size();i++){
+        //Añadimos los generos de cada pelicula
+        ArrayList<Genero> g;
+        for (int i = 0; i < peliculas.size(); i++) {
+            g = new ArrayList<>();
             //Buscamos los generos de la pelicula
-            g=man.getGenerosPelicula(pelis.get(i).getId_P());
+            g = man.getGenerosPelicula(peliculas.get(i).getId_P());
             //insertamos los generos a la pelicula
-            pelis.get(i).setGeneros(g);
-            //vaciamos el array
-            g.clear();
+            peliculas.get(i).setGeneros(g);
         }
         //Añadimos al director de cada pelicula
         Director dir;
-        for(int i=0;i<pelis.size();i++){
+        for (int i = 0; i < peliculas.size(); i++) {
             //Buscamos el director de la pelicula
-            dir=man.getDirectorPelicula(pelis.get(i).getId_P());
+            dir = man.getDirectorPelicula(peliculas.get(i).getId_P());
             //Insertamos el director
-            pelis.get(i).setDir(dir);
-        }*/
+            peliculas.get(i).setDir(dir);
+        }
+
         //Si titulo no esta vacio, filtramos por titulo
-        if(!(titulo.trim().equals(""))){
-            pelis=filtrarTitulo(pelis,titulo);
+        if (!(titulo.trim().equals(""))) {
+            peliculas = filtrarTitulo(peliculas, titulo);
         }
         //Si director no esta vacio, filtramos por director
-        if(!(director.trim().equals(""))){
-            pelis=filtrarDirector(pelis,director);
+        if (!(director.trim().equals(""))) {
+            peliculas = filtrarDirector(peliculas, director);
         }
         //Si genero no esta vacio, filtramos por genero
-        if(!(genero.trim().equals(""))){
-            pelis=filtrarGenero(pelis,genero);
+        if (!(genero.trim().equals(""))) {
+            peliculas = filtrarGenero(peliculas, genero);
         }
         //Si  no hay peliculas, se muetyra un mensaje informando 
-        if(pelis.size()==0){
+        if (peliculas.size() == 0) {
             JOptionPane.showMessageDialog(null,
-                "No se han encontrado registros que coincidan.");
-        }else{
+                    "No se han encontrado registros que coincidan.");
+        } else {
+            pelis = peliculas;
             //Se ciertra esta ventana y se carga la pagina de resultado
             this.dispose();
             ResultadoBuscarPeliculas a = new ResultadoBuscarPeliculas(pelis, admin, baseDeDatos);
             a.setVisible(true);
         }
-        
-        
+
     }
+
     /**
      * Metodo para filtrat peliculas por titulo
-     * @param pelis pleiculas a filtrar
+     *
+     * @param peliculas pleiculas a filtrar
      * @param titulo tiulo por el que filtrar
      * @return ArrayLIst de peliculas filtradas
      */
-    private ArrayList<Pelicula> filtrarTitulo(ArrayList<Pelicula> pelis, String titulo) {
-        Integer i=0;
-        for (Pelicula peli : pelis) {
-            //si el titulo de la peli no coicide, la pelicula se elimina de la lista
-            if(!(peli.getTituloP().equalsIgnoreCase(titulo))){
-                pelis.remove(i);
+    private ArrayList<Pelicula> filtrarTitulo(ArrayList<Pelicula> peliculas, String titulo) {
+        ArrayList<Pelicula> p = new ArrayList<>();
+        for (Pelicula pelicula : peliculas) {
+            if (pelicula.getTituloP().equalsIgnoreCase(titulo)) {
+                p.add(pelicula);
             }
-            i++;
         }
-        return pelis;
+        return p;
     }
+
     /**
      * Metodo para filtrar peliculas por director
-     * @param pelis peliculas a filtrar 
+     *
+     * @param peliculas peliculas a filtrar
      * @param director director por el que se va a filtrar
      * @return ArrayList de peliculas filtradas
      */
-    private ArrayList<Pelicula> filtrarDirector(ArrayList<Pelicula> pelis, String director) {
-        Integer i=0;
-        String dir=null;
-        for (Pelicula peli : pelis) {
-            dir=peli.getDirector();
-            if(!(dir.equalsIgnoreCase(director))){
-                pelis.remove(i);
+    private ArrayList<Pelicula> filtrarDirector(ArrayList<Pelicula> peliculas, String director) {
+        ArrayList<Pelicula> p = new ArrayList<>();
+        for (Pelicula pelicula : peliculas) {
+            if (pelicula.getDirector().equalsIgnoreCase(director)) {
+                p.add(pelicula);
             }
-            i++;
         }
-        return pelis;
+        return p;
     }
+
     /**
      * Metodo para filtrar peliculas por un genero
-     * @param pelis ArrayList de peliculas que van a ser filtradas
+     *
+     * @param peliculas ArrayList de peliculas que van a ser filtradas
      * @param genero Genero por el que se van a flitrar
      * @return ArrayList de palisculas filtradas
      */
-    private ArrayList<Pelicula> filtrarGenero(ArrayList<Pelicula> pelis, String genero) {
-        Integer i=0;
-        Boolean ok=false;
-        ArrayList <Genero> gens;
-        for (Pelicula peli : pelis) {
-            gens= new ArrayList<>();
-            //cargamos los generos de la pelicula
-            gens=peli.getGeneros(gens);
-            for(int j=0;j<gens.size();j++){
-                //si se encuentra el genero, se cambia el valor de el booleano a true
-                //y sale del bucle
-                if(gens.get(j).getDescrip_gen().equalsIgnoreCase(genero)){
-                    ok=true;
+    private ArrayList<Pelicula> filtrarGenero(ArrayList<Pelicula> peliculas, String genero) {
+        ArrayList<Pelicula> p = new ArrayList<>();
+        for (Pelicula pelicula : peliculas) {
+            for(Genero g: pelicula.getGen()){
+                if(g.getDescrip_gen().equals(genero)){
+                    p.add(pelicula);
                     break;
                 }
-            }
-            //si el valor del booleano es false, la pelicula no tiene el genero y 
-            //se borrara del ArrayList
-            if(!ok){
-                pelis.remove(i);
-            }
-            //se vuelve a poner el valor del booleano a false.
-            ok=false;
-            i++;
+            }  
         }
-        return pelis;
+        return p;
     }
+
     /**
-     * Metodo para cargarDatos 
+     * Metodo para cargarDatos
      */
     private void cargarDatos() {
         cargarGeneros();
         cargarDirectores();
-        
+
     }
+
     /**
      * Metodo para recoger todos los generos almacenados en la BD
      */
     private void cargarGeneros() {
         //se recogen todos los generos almacenados en la BD
-        ArrayList <Genero> gens= man.cargarGeneros();
+        generos = man.cargarGeneros();
+        boxGenero.addItem("");
         //se insertan los nombres de los generos en el comboBox
-        for(int i=0;i<gens.size();i++){
-            boxGenero.addItem(gens.get(i).getDescrip_gen());
+        for (Genero genero : generos) {
+            boxGenero.addItem(genero.getDescrip_gen());
         }
     }
+
     /**
      * Metodo para recoger todos los directores almacenados en la BD
      */
     private void cargarDirectores() {
         //se recogen todos los directores almacenados en la BD
-        ArrayList <Director> dires= man.cargarDirectores();
+        directores = man.cargarDirectores();
+        boxDirector.addItem("");
         //se insertan los nombres y apellidos de los directores en el comboBox
-        for(int i=0;i<dires.size();i++){
-            boxGenero.addItem(dires.get(i).getNombre()+" "+dires.get(i).getApell());
+        for (Director director : directores) {
+            boxDirector.addItem(director.getNombre() + " " + director.getApell());
+
         }
     }
 }

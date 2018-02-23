@@ -17,6 +17,27 @@ public class Pelicula {
     private Director dir;
     //private int duracionAl;
 
+    public Pelicula() {
+        gen= new ArrayList<>();   
+    }
+
+   
+    
+    public Pelicula(int id_P, String tituloP, String paisP, Date fechaP, int duracionP, String descriP, float notaUsu, float notaPren, ArrayList<Genero> gen, Director dir) {
+        this.id_P = id_P;
+        this.tituloP = tituloP;
+        this.paisP = paisP;
+        this.fechaP = fechaP;
+        this.duracionP = duracionP;
+        this.descriP = descriP;
+        this.notaUsu = notaUsu;
+        this.notaPren = notaPren;
+        this.gen = gen;
+        this.dir = dir;
+    }
+    
+    
+    
     public ArrayList<Genero> getGen() {
         return gen;
     }
