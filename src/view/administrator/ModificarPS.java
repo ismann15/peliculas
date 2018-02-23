@@ -360,7 +360,8 @@ public class ModificarPS extends JDialog implements ActionListener {
      */
     private void buscarPS() {
         String busqueda = textField.getText().toLowerCase();
-        Boolean esSerie = rdbtnSerie.isSelected();
+        Boolean esSerie = false;
+        if(rdbtnSerie.isSelected()) esSerie=true;
         peliculas= new ArrayList<>();
 
         if (esSerie) {
@@ -374,8 +375,10 @@ public class ModificarPS extends JDialog implements ActionListener {
             g= new ArrayList<>();
             //Buscamos los generos de la pelicula
             g = man.getGenerosPelicula(peliculas.get(i).getId_P());
+            System.out.println(peliculas.get(i).getTituloP()+": "+g.size());
             //insertamos los generos a la pelicula
-            peliculas.get(i).setGeneros(g);
+            peliculas.get(i).setGen(g);
+            System.out.println(peliculas.get(i).getTituloP()+": "+g.size());
         }
         //Añadimos al director de cada pelicula
         Director dir;
@@ -395,6 +398,7 @@ public class ModificarPS extends JDialog implements ActionListener {
         }
         //se añaden las peliculas al comboBox
         anadirAlCombo();
+        
 
     }
 
@@ -406,6 +410,12 @@ public class ModificarPS extends JDialog implements ActionListener {
             boxResultado.addItem(pelicula.getTituloP());
         }
         boxResultado.setSelectedIndex(-1);
+        if(peliculas.size()>0){
+            rdbtnPelicula.setEnabled(false);
+            rdbtnSerie.setEnabled(false);
+            btnBuscar.setEnabled(false);
+            textField.setEnabled(false);
+        }
     }
 
     /**

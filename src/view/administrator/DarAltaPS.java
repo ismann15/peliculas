@@ -534,6 +534,9 @@ public class DarAltaPS extends JDialog implements ActionListener {
                 p = pel;
                 if (accion == 1) {
                     man.aniadirPelicula(p);
+                    JOptionPane.showMessageDialog(null,
+                                "Pelicula insertada correctamente");
+                    goToMenu();
                 }
             } catch (ParseException ex) {
                 Logger.getLogger(ModificarPS.class.getName()).log(Level.SEVERE, null, ex);

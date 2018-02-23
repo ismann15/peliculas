@@ -109,6 +109,7 @@ public class AniadirGenero extends JDialog implements ActionListener {
                 gen.setId_gen(man.obtenerIdGeneroMax());
                 man.crearGenero(gen);
                 JOptionPane.showMessageDialog(null, "Genero insertado correctamente");
+                txtNombre.setText("");
             }
         }
 

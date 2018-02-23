@@ -63,13 +63,18 @@ public class DBManagerMongoDB implements Logica {
     public boolean comprobarPass(String nombreU, String pass) {
         coleccion = db.getCollection("administradores");
         Boolean ok = false;
+        try {
+            MongoCursor<Document> docu = coleccion.find().iterator();
 
-        Document doc = coleccion.find(and(eq("nombreUsuario", nombreU), eq("password", pass))).first();
-        if (doc.isEmpty()) {
+            while (docu.hasNext()) {
+                Document d = docu.next();
+                if (d.getString("nombreUsuario").equals(nombreU) && d.getString("password").equals(pass)) {
+                    ok = true;
+                }
+            }
+
+        } catch (Exception e) {
             LOGGER.info("la contraseña no coincide para " + nombreU);
-        } else {
-            //Existe un usuario con ese nombre de suario
-            ok = true;
         }
         return ok;
     }
@@ -207,7 +212,7 @@ public class DBManagerMongoDB implements Logica {
         MongoCursor<Document> docs = coleccion.find().sort(descending("idGenero")).iterator();
         while (docs.hasNext()) {
             //Se obtiene la primera instancia, que es el que tiene la id mas alta y sale del while
-            id = docs.next().getInteger("idGenero", 0);
+            id = docs.next().getInteger("idGenero");
             break;
         }
         //cerramos el cursor
@@ -384,7 +389,11 @@ public class DBManagerMongoDB implements Logica {
         //se agregan los generos al documento de la pelicula
         doc.put("generos", generos);
         //si es serie sera true
-        doc.put("esSerie", ok);
+        if (ok) {
+            doc.put("esSerie", 1);
+        } else {
+            doc.put("esSerie", 0);
+        }
 
         coleccion.insertOne(doc);
     }
@@ -397,10 +406,23 @@ public class DBManagerMongoDB implements Logica {
      */
     @Override
     public Administrador obtenerAdmin(String uName) {
+        Administrador admin = null;
         coleccion = db.getCollection("administradores");
         //Se guarda al administrador en un documento
-        Document doc = coleccion.find(eq("nombreUsuario", uName)).first();
-        return new Administrador(doc.getString("nombreUsuario"), doc.getString("password"));
+        try {
+            MongoCursor<Document> docs = coleccion.find().iterator();
+            while (docs.hasNext()) {
+                Document d = docs.next();
+
+                if (uName.equals(d.getString("nombreUsuario"))) {
+                    admin = new Administrador(d.getString("nombreUsuario"), d.getString("password"));
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.info("ha ocurrido un error :" + e.getMessage());
+        }
+        return admin;
     }
 
     /**
@@ -419,6 +441,7 @@ public class DBManagerMongoDB implements Logica {
         } else {//BUSCA PELICULAS
             ok = false;
         }
+        System.out.println("ok=" + ok);
         SimpleDateFormat dma = new SimpleDateFormat("dd/MM/yyyy");
         coleccion = db.getCollection("peliculas");
         //Se recogen en una lista todos los documentos  que contienen peliculas
@@ -429,7 +452,20 @@ public class DBManagerMongoDB implements Logica {
             Document doc = docs.next();
 
             if (doc.getString("tituloP").equalsIgnoreCase(titulo)) {
-                Pelicula p = new Pelicula();
+                Pelicula p;
+                if (ok) {
+                    p= new Serie();
+                    ((Serie) p).setEstado(doc.getString("estado"));
+                    ((Serie) p).setNumCap(doc.getInteger("numCap"));
+                    try {
+                        ((Serie) p).setFechaFin(dma.parse(doc.getString("fechaFin")));
+                    } catch (ParseException ex) {
+                        //Si salta la excepcion, la fecha se modificara a la fecha actual
+                        ((Serie) p).setFechaFin(new Date());
+                    }
+                }else{
+                    p= new Pelicula();
+                }
                 p.setId_P(doc.getInteger("id_P"));
                 p.setTituloP(doc.getString("tituloP"));
                 p.setPaisP(doc.getString("paisP"));
@@ -446,7 +482,7 @@ public class DBManagerMongoDB implements Logica {
                 p.setNotaPren((float) notaPren);
                 double notaUsu = doc.getDouble("notaUsu");
                 p.setNotaUsu((float) notaUsu);
-                
+
                 Document director = (Document) doc.get("director");
                 p.setDir(new Director(director.getInteger("idDirector"), director.getString("nombreDirector"),
                         director.getString("apellidoDirector"), director.getString("paisDirector")));
@@ -456,23 +492,12 @@ public class DBManagerMongoDB implements Logica {
                 for (Document d : generos) {
                     p.getGen().add(new Genero(d.getInteger("idGenero"), d.getString("nombreGenero")));
                 }
+
                 
-                if (ok) {
-                    ((Serie) p).setEstado(doc.getString("estado"));
-                    ((Serie) p).setNumCap(doc.getInteger("numCap"));
-                    try {
-                        ((Serie) p).setFechaFin(dma.parse(doc.getString("fechaF")));
-                    } catch (ParseException ex) {
-                        //Si salta la excepcion, la fecha se modificara a la fecha actual
-                        ((Serie) p).setFechaFin(new Date());
-                    }
-                }
                 peliculas.add(p);
             }
-
         }
         return peliculas;
-
     }
 
     /**
@@ -499,10 +524,17 @@ public class DBManagerMongoDB implements Logica {
         Boolean ok = false;
         coleccion = db.getCollection("peliculas");
         //Se recoge la pelicula en un documento
-        Document doc = coleccion.find(eq("id_P", id)).first();
+        MongoCursor<Document> docs = coleccion.find().iterator();
         //se comprueba si el campo esSerie es true
-        if (doc.getBoolean("esSerie")) {
-            ok = true;
+        while (docs.hasNext()) {
+            Document doc = docs.next();
+
+            if (doc.getInteger("id_P") == id) {
+                if (doc.getInteger("esSerie") == 1) {
+                    ok = true;
+                    break;
+                }
+            }
         }
         return ok;
     }
@@ -517,52 +549,57 @@ public class DBManagerMongoDB implements Logica {
         ArrayList<Pelicula> peliculas = new ArrayList<>();
         SimpleDateFormat dma = new SimpleDateFormat("dd/MM/yyyy");
         coleccion = db.getCollection("peliculas");
+        try {
+            MongoCursor<Document> docs = coleccion.find().iterator();
 
-        MongoCursor<Document> docs = coleccion.find().iterator();
+            while (docs.hasNext()) {
+                Document doc = docs.next();
 
-        while (docs.hasNext()) {
-            Document doc = docs.next();
+                if (doc.getInteger("esSerie") == 1) {
+                    Serie p = new Serie();
+                    p.setId_P(doc.getInteger("id_P"));
+                    p.setTituloP(doc.getString("tituloP"));
+                    p.setPaisP(doc.getString("paisP"));
+                    //Se intenta parsear la fecha que viene como string a date
+                    try {
+                        p.setFechaP(dma.parse(doc.getString("fechaP")));
+                    } catch (ParseException ex) {
+                        //Si salta la excepcion, la fecha se modificara a la fecha actual
+                        p.setFechaP(new Date());
+                    }
+                    p.setDuracionP(doc.getInteger("duracionP"));
+                    p.setDescriP(doc.getString("descriP"));
+                    double notaPren = doc.getDouble("notaPren");
+                    p.setNotaPren((float) notaPren);
+                    double notaUsu = doc.getDouble("notaUsu");
+                    p.setNotaUsu((float) notaUsu);
 
-            if (doc.getInteger("esSerie") == 1) {
-                Serie p = new Serie();
-                p.setId_P(doc.getInteger("id_P"));
-                p.setTituloP(doc.getString("tituloP"));
-                p.setPaisP(doc.getString("paisP"));
-                //Se intenta parsear la fecha que viene como string a date
-                try {
-                    p.setFechaP(dma.parse(doc.getString("fechaP")));
-                } catch (ParseException ex) {
-                    //Si salta la excepcion, la fecha se modificara a la fecha actual
-                    p.setFechaP(new Date());
+                    p.setEstado(doc.getString("estado"));
+                    p.setNumCap(doc.getInteger("numCap"));
+                    try {
+                        p.setFechaFin(dma.parse(doc.getString("fechaFin")));
+                    } catch (ParseException ex) {
+                        //Si salta la excepcion, la fecha se modificara a la fecha actual
+                        p.setFechaFin(new Date());
+                    }
+                    Document director = (Document) doc.get("director");
+                    p.setDir(new Director(director.getInteger("idDirector"), director.getString("nombreDirector"),
+                            director.getString("apellidoDirector"), director.getString("paisDirector")));
+
+                    ArrayList<Document> generos = (ArrayList<Document>) doc.get("generos");
+
+                    for (Document d : generos) {
+                        p.getGen().add(new Genero(d.getInteger("idGenero"), d.getString("nombreGenero")));
+                    }
+                    peliculas.add(p);
+
                 }
-                p.setDuracionP(doc.getInteger("duracionP"));
-                p.setDescriP(doc.getString("descriP"));
-                double notaPren = doc.getDouble("notaPren");
-                p.setNotaPren((float) notaPren);
-                double notaUsu = doc.getDouble("notaUsu");
-                p.setNotaUsu((float) notaUsu);
-
-                p.setEstado(doc.getString("estado"));
-                p.setNumCap(doc.getInteger("numCap"));
-                try {
-                    p.setFechaFin(dma.parse(doc.getString("fechaF")));
-                } catch (ParseException ex) {
-                    //Si salta la excepcion, la fecha se modificara a la fecha actual
-                    p.setFechaFin(new Date());
-                }
-                Document director = (Document) doc.get("director");
-                p.setDir(new Director(director.getInteger("idDirector"), director.getString("nombreDirector"),
-                        director.getString("apellidoDirector"), director.getString("paisDirector")));
-
-                ArrayList<Document> generos = (ArrayList<Document>) doc.get("generos");
-
-                for (Document d : generos) {
-                    p.getGen().add(new Genero(d.getInteger("idGenero"), d.getString("nombreGenero")));
-                }
-                peliculas.add(p);
-
             }
+
+        } catch (Exception e) {
+            System.out.println("Error:" + e.getMessage());
         }
+        System.out.println(peliculas.size());
         return peliculas;
     }
 

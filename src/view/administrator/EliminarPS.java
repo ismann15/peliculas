@@ -363,10 +363,10 @@ public class EliminarPS extends JDialog implements ActionListener {
             txtFechaP.setText(dma.format(p.getFechaP()));
             txtDuracion.setText(String.valueOf(p.getDuracionP()));
             txtNotaP.setText(String.valueOf(p.getNotaPren()));
-            txtNotaU.setText(String.valueOf(p.getNotaPren()));
+            txtNotaU.setText(String.valueOf(p.getNotaUsu()));
             txtDescrip.setText(p.getDescriP());
             txtDirector.setText(p.getDirector());
-
+            System.out.println(p.getTituloP()+": "+p.getGen().size());
             for (Genero genero : p.getGen()) {
                 txtGenero.append(genero.getDescrip_gen() + "\n");
             }

@@ -138,10 +138,16 @@ public class AniadirDirector extends JDialog implements ActionListener {
                 dir.setId_Dir(man.obtenerIdDirectorMax());
                 man.crearDirector(dir);
                 JOptionPane.showMessageDialog(null, "Director insertado correctamente");
-
+                limpiarDatos();
             }
         }
 
+    }
+
+    private void limpiarDatos() {
+        txtApell.setText("");
+        txtNombre.setText("");
+        txtPais.setText("");
     }
 
 }
